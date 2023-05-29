@@ -87,7 +87,7 @@ func downloadArtifacts(_os string, arch string, version string) {
 	path := "offline/"
 
 	ifExists := func(path string) bool {
-		if _, err := os.Stat("/path/to/whatever"); errors.Is(err, os.ErrNotExist) {
+		if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
 			return false
 		}
 		return true
@@ -156,13 +156,14 @@ func downloadArtifacts(_os string, arch string, version string) {
 	}
 
 	for _, v := range natives.LaunchTypeData.Artifacts {
-		fmt.Printf("Name: %s\nUrl:%s\n\n", v.Name, v.Url)
 		if !ifExists(fmt.Sprintf("%s/%s", path, v.Name)) {
 			file, err := grab.Get(fmt.Sprintf("%s/%s", path, v.Name), v.Url)
 			if err != nil {
 				panic(err)
 			}
 			fmt.Println("Downloaded file: ", file.Filename)
+		} else {
+			fmt.Println("Already Exists")
 		}
 	}
 }
