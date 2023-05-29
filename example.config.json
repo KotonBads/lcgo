@@ -1,5 +1,7 @@
 {
     "version": "1.8.9",
+    "width": 1366,
+    "height": 768,
     "jre": "/path/to/jre/folder",
     "memory": {
         "Xms": "3G",
@@ -9,6 +11,8 @@
     },
     "assets": "/path/to/lunar/files",
     "textures": "path/to/lunar/textures",
+    "natives": "/path/to/natives",
+    "mcdir": "/path/to/minecraft/dir",
     "agents": [
         "/path/to/java/agent",
         "/hi/weave"
