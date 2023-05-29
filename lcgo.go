@@ -89,5 +89,6 @@ func main() {
 		// fmt.Println(natives)
 		write(natives)
 		downloadArtifacts(os, arch, version)
+		launch("config.json")
 	}
 }
