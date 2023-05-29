@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	"github.com/cavaliergopher/grab/v3"
+	"errors"
 )
 
 func platform() (platform string, arch string) {
@@ -40,12 +42,12 @@ func platform() (platform string, arch string) {
 	return _platform, _arch
 }
 
-func fetch(os string, arch string, version string) (natives map[string]any, err error) {
+func fetch(_os string, arch string, version string) (artifacts map[string]any, err error) {
 	url := "https://api.lunarclientprod.com/launcher/launch"
 
 	params := map[string]string{
 		"hwid":        "0",
-		"os":          os,
+		"os":          _os,
 		"arch":        arch,
 		"version":     version,
 		"branch":      "master",
@@ -53,7 +55,7 @@ func fetch(os string, arch string, version string) (natives map[string]any, err 
 		"classifier":  "optifine",
 	}
 
-	_natives := map[string]any{}
+	natives := map[string]any{}
 
 	jsonVal, _ := json.Marshal(params)
 
@@ -61,13 +63,13 @@ func fetch(os string, arch string, version string) (natives map[string]any, err 
 
 	body, _ := io.ReadAll(response.Body)
 
-	_err := json.Unmarshal(body, &_natives)
+	_err := json.Unmarshal(body, &natives)
 
 	if _err != nil {
 		panic(_err)
 	}
 
-	return _natives, error
+	return natives, error
 }
 
 func write(natives map[string]any) {
@@ -81,12 +83,97 @@ func write(natives map[string]any) {
 	}
 }
 
+func downloadArtifacts(_os string, arch string, version string) {
+	path := "offline/"
+
+	ifExists := func(path string) bool {
+		if _, err := os.Stat("/path/to/whatever"); errors.Is(err, os.ErrNotExist) {
+			return false
+		}
+		return true
+	}
+
+	url := "https://api.lunarclientprod.com/launcher/launch"
+
+	params := map[string]string{
+		"hwid":        "0",
+		"os":          _os,
+		"arch":        arch,
+		"version":     version,
+		"branch":      "master",
+		"launch_type": "OFFLINE",
+		"classifier":  "optifine",
+	}
+
+	type Artifact struct {
+		Name string `json:"name"`
+		Sha1 string `json:"sha1"`
+		Url  string `json:"url"`
+	}
+
+	type LaunchMeta struct {
+		Success        bool `json:"success"`
+		UI             bool `json:"ui"`
+		UpdateAssets   bool `json:"updateAssets"`
+		LaunchTypeData struct {
+			Artifacts []Artifact `json:"artifacts"`
+			MainClass string     `json:"mainClass"`
+		} `json:"launchTypeData"`
+		Licenses []struct {
+			File string `json:"file"`
+			URL  string `json:"url"`
+			Sha1 string `json:"sha1"`
+		} `json:"licenses"`
+		Textures struct {
+			IndexURL  string `json:"indexUrl"`
+			IndexSha1 string `json:"indexSha1"`
+			BaseURL   string `json:"baseUrl"`
+		} `json:"textures"`
+		Jre struct {
+			Download struct {
+				URL       string `json:"url"`
+				Extension string `json:"extension"`
+			} `json:"download"`
+			ExecutablePathInArchive []string    `json:"executablePathInArchive"`
+			CheckFiles              [][]string  `json:"checkFiles"`
+			ExtraArguments          []string    `json:"extraArguments"`
+			JavawDownload           interface{} `json:"javawDownload"`
+			JavawExeChecksum        interface{} `json:"javawExeChecksum"`
+			JavaExeChecksum         string      `json:"javaExeChecksum"`
+		} `json:"jre"`
+	}
+
+	jsonVal, _ := json.Marshal(params)
+	var natives LaunchMeta
+
+	response, _ := http.Post(url, "application/json", bytes.NewBuffer(jsonVal))
+
+	body, _ := io.ReadAll(response.Body)
+	_err := json.Unmarshal(body, &natives)
+
+	if _err != nil {
+		panic(_err)
+	}
+
+	for _, v := range natives.LaunchTypeData.Artifacts {
+		fmt.Printf("Name: %s\nUrl:%s\n\n", v.Name, v.Url)
+		if !ifExists(fmt.Sprintf("%s/%s", path, v.Name)) {
+			file, err := grab.Get(fmt.Sprintf("%s/%s", path, v.Name), v.Url)
+			if err != nil {
+				panic(err)
+			}
+			fmt.Println("Downloaded file: ", file.Filename)
+		}
+	}
+}
+
 func main() {
 	version := "1.8.9"
 	os, arch := platform()
 
 	if natives, err := fetch(os, arch, version); err == nil {
-		fmt.Println(natives)
+		// fmt.Println(natives)
 		write(natives)
+		downloadArtifacts(os, arch, version)
 	}
 }
