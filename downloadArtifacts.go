@@ -10,6 +10,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
+
+	"github.com/xyproto/unzip"
 
 	"github.com/cavaliergopher/grab/v3"
 )
@@ -105,12 +108,20 @@ func downloadArtifacts(_os string, arch string, version string) {
 	}
 
 	for _, v := range natives.LaunchTypeData.Artifacts {
-		if !ifExists(fmt.Sprintf("%s/%s", path, v.Name)) || !checkHash(fmt.Sprintf("%s/%s", path, v.Name), v.Sha1) {
+		if !ifExists(fmt.Sprintf("%s/%s", path, v.Name)) || !checkHash(fmt.Sprintf("%s/%s", path, v.Name), v.Sha1) || filepath.Ext(fmt.Sprintf("%s/%s", path, v.Name)) == ".zip" {
 			file, err := grab.Get(fmt.Sprintf("%s/%s", path, v.Name), v.Url)
 			if err != nil {
 				panic(err)
 			}
+
 			fmt.Println("Downloaded file: ", file.Filename)
+
+			if filepath.Ext(fmt.Sprintf("%s/%s", path, v.Name)) == ".zip" {
+				fmt.Println("Found a zip file, Extracting...")
+				if err := unzip.Extract(fmt.Sprintf("%s/%s", path, v.Name), fmt.Sprintf("%s/natives", path)); err != nil {
+					panic(err)
+				}
+			}
 		} else {
 			fmt.Println(v.Name, ": Already Downloaded / Up to date")
 		}
