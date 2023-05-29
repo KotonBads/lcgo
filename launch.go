@@ -33,7 +33,7 @@ func launch(config string) {
 	var launchArgs LaunchArgs
 	var assets []string
 	var assetsPath []string
-	var assetIndex string
+	assetIndex := launchArgs.Version
 
 	ichorClassPath := func() string {
 		var e string
@@ -66,12 +66,6 @@ func launch(config string) {
 		return e
 	}
 
-	if launchArgs.Version == "1.8.9" {
-		assetIndex = "1.8"
-	} else {
-		assetIndex = launchArgs.Version
-	}
-
 	if f, err := os.ReadFile(config); err == nil {
 		if err != nil {
 			panic(err)
@@ -80,16 +74,22 @@ func launch(config string) {
 		json.Unmarshal(f, &launchArgs)
 	}
 
+	if launchArgs.Version == "1.8.9" {
+		assetIndex = "1.8"
+	}
+
 	if entries, err := os.ReadDir(launchArgs.Assets); err == nil {
 		for _, v := range entries {
-			if !v.IsDir() && !strings.HasSuffix(v.Name(), ".zip") {
+			if !v.IsDir() && !strings.HasSuffix(v.Name(), ".zip") && !strings.HasPrefix(v.Name(), "OptiFine") {
 				assets = append(assets, v.Name())
-				assetsPath = append(assetsPath, fmt.Sprintf("\"%s/%s\"", launchArgs.Assets, v.Name()))
+				assetsPath = append(assetsPath, fmt.Sprintf("%s/%s", launchArgs.Assets, v.Name()))
 			}
 		}
 	}
 
-	cmd := exec.Command("bash", "-c", fmt.Sprintf("%s/bin/java --add-modules jdk.naming.dns --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming -Djava.library.path=%s -Dlog4j2.formatMsgNoLookups=true --add-opens java.base/java.io=ALL-UNNAMED -Xms%s -Xmx%s -Xss%s -Xmn%s %s -cp %s %s com.moonsworth.lunar.genesis.Genesis --version %s --accessToken 0 --assetIndex %s --userProperties {} --gameDir %s --texturesDir %s --launcherVersion 69420 --hwid 69420 --width %d --height %d --workingDirectory %s --classpathDir %s --ichorClassPath \"%s\"", launchArgs.JRE, launchArgs.Natives, launchArgs.Memory.Xms, launchArgs.Memory.Xmx, launchArgs.Memory.Xss, launchArgs.Memory.Xmn, strings.Join(launchArgs.JVMArgs, " "), strings.Join(assetsPath, ":"), javaAgent(), launchArgs.Version, assetIndex, launchArgs.MCDir, launchArgs.Textures, launchArgs.Width, launchArgs.Height, launchArgs.Assets, launchArgs.Assets, ichorClassPath()))
+	cmd := exec.Command("bash", "-c", fmt.Sprintf("%s/bin/java --add-modules jdk.naming.dns --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming -Djna.boot.library.path=%s -Djava.library.path=%s -Dlog4j2.formatMsgNoLookups=true --add-opens java.base/java.io=ALL-UNNAMED -Xms%s -Xmx%s -Xss%s -Xmn%s %s -cp %s %s com.moonsworth.lunar.genesis.Genesis --version %s --accessToken 0 --assetIndex %s --userProperties {} --gameDir %s --texturesDir %s --launcherVersion 69420 --hwid 69420 --width %d --height %d --workingDirectory %s --classpathDir %s --ichorClassPath %s", launchArgs.JRE, launchArgs.Natives, launchArgs.Natives, launchArgs.Memory.Xms, launchArgs.Memory.Xmx, launchArgs.Memory.Xss, launchArgs.Memory.Xmn, strings.Join(launchArgs.JVMArgs, " "), strings.Join(assetsPath, ":"), javaAgent(), launchArgs.Version, assetIndex, launchArgs.MCDir, launchArgs.Textures, launchArgs.Width, launchArgs.Height, launchArgs.Assets, launchArgs.Assets, ichorClassPath()))
+
+	fmt.Println(cmd.Args)
 
 	var stdBuffer bytes.Buffer
 	mw := io.MultiWriter(os.Stdout, &stdBuffer)
