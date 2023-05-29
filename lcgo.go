@@ -2,15 +2,17 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha1"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"runtime"
+
 	"github.com/cavaliergopher/grab/v3"
-	"errors"
 )
 
 func platform() (platform string, arch string) {
@@ -93,6 +95,24 @@ func downloadArtifacts(_os string, arch string, version string) {
 		return true
 	}
 
+	checkHash := func(path string, hash string) bool {
+		f, err := os.Open(path)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer f.Close()
+
+		h := sha1.New()
+		if _, err := io.Copy(h, f); err != nil {
+			log.Fatal(err)
+		}
+
+		if fmt.Sprintf("%x", h.Sum(nil)) == hash {
+			return true
+		}
+		return false
+	}
+
 	url := "https://api.lunarclientprod.com/launcher/launch"
 
 	params := map[string]string{
@@ -156,14 +176,14 @@ func downloadArtifacts(_os string, arch string, version string) {
 	}
 
 	for _, v := range natives.LaunchTypeData.Artifacts {
-		if !ifExists(fmt.Sprintf("%s/%s", path, v.Name)) {
+		if !ifExists(fmt.Sprintf("%s/%s", path, v.Name)) || !checkHash(fmt.Sprintf("%s/%s", path, v.Name), v.Sha1) {
 			file, err := grab.Get(fmt.Sprintf("%s/%s", path, v.Name), v.Url)
 			if err != nil {
 				panic(err)
 			}
 			fmt.Println("Downloaded file: ", file.Filename)
 		} else {
-			fmt.Println("Already Exists")
+			fmt.Println(v.Name, ": Already Downloaded / Up to date")
 		}
 	}
 }
