@@ -65,8 +65,6 @@ func downloadArtifacts(_os string, arch string, version string) {
 
 	type LaunchMeta struct {
 		Success        bool `json:"success"`
-		UI             bool `json:"ui"`
-		UpdateAssets   bool `json:"updateAssets"`
 		LaunchTypeData struct {
 			Artifacts []Artifact `json:"artifacts"`
 			MainClass string     `json:"mainClass"`
