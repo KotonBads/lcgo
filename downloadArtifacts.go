@@ -17,6 +17,42 @@ import (
 	"github.com/cavaliergopher/grab/v3"
 )
 
+type Artifact struct {
+	Name string `json:"name"`
+	Sha1 string `json:"sha1"`
+	Url  string `json:"url"`
+}
+
+type LaunchMeta struct {
+	Success        bool `json:"success"`
+	LaunchTypeData struct {
+		Artifacts []Artifact `json:"artifacts"`
+		MainClass string     `json:"mainClass"`
+	} `json:"launchTypeData"`
+	Licenses []struct {
+		File string `json:"file"`
+		URL  string `json:"url"`
+		Sha1 string `json:"sha1"`
+	} `json:"licenses"`
+	Textures struct {
+		IndexURL  string `json:"indexUrl"`
+		IndexSha1 string `json:"indexSha1"`
+		BaseURL   string `json:"baseUrl"`
+	} `json:"textures"`
+	Jre struct {
+		Download struct {
+			URL       string `json:"url"`
+			Extension string `json:"extension"`
+		} `json:"download"`
+		ExecutablePathInArchive []string    `json:"executablePathInArchive"`
+		CheckFiles              [][]string  `json:"checkFiles"`
+		ExtraArguments          []string    `json:"extraArguments"`
+		JavawDownload           interface{} `json:"javawDownload"`
+		JavawExeChecksum        interface{} `json:"javawExeChecksum"`
+		JavaExeChecksum         string      `json:"javaExeChecksum"`
+	} `json:"jre"`
+}
+
 func downloadArtifacts(_os string, arch string, version string) {
 	path := "offline/"
 
@@ -55,42 +91,6 @@ func downloadArtifacts(_os string, arch string, version string) {
 		"branch":      "master",
 		"launch_type": "OFFLINE",
 		"classifier":  "optifine",
-	}
-
-	type Artifact struct {
-		Name string `json:"name"`
-		Sha1 string `json:"sha1"`
-		Url  string `json:"url"`
-	}
-
-	type LaunchMeta struct {
-		Success        bool `json:"success"`
-		LaunchTypeData struct {
-			Artifacts []Artifact `json:"artifacts"`
-			MainClass string     `json:"mainClass"`
-		} `json:"launchTypeData"`
-		Licenses []struct {
-			File string `json:"file"`
-			URL  string `json:"url"`
-			Sha1 string `json:"sha1"`
-		} `json:"licenses"`
-		Textures struct {
-			IndexURL  string `json:"indexUrl"`
-			IndexSha1 string `json:"indexSha1"`
-			BaseURL   string `json:"baseUrl"`
-		} `json:"textures"`
-		Jre struct {
-			Download struct {
-				URL       string `json:"url"`
-				Extension string `json:"extension"`
-			} `json:"download"`
-			ExecutablePathInArchive []string    `json:"executablePathInArchive"`
-			CheckFiles              [][]string  `json:"checkFiles"`
-			ExtraArguments          []string    `json:"extraArguments"`
-			JavawDownload           interface{} `json:"javawDownload"`
-			JavawExeChecksum        interface{} `json:"javawExeChecksum"`
-			JavaExeChecksum         string      `json:"javaExeChecksum"`
-		} `json:"jre"`
 	}
 
 	jsonVal, _ := json.Marshal(params)
