@@ -53,7 +53,17 @@ type LaunchMeta struct {
 	} `json:"jre"`
 }
 
-func downloadArtifacts(_os string, arch string, version string) {
+/*
+Download artifacts from LunarClient's API.
+
+@param {string} platform - Current platform (win32, linux, darwin)
+
+@param {string} arch - Current platform architecture (amd64, amd64p32)
+
+@param {string} version - Minecraft version to download for (1.7, 1.8.9, ..., 1.19.4)
+
+*/
+func downloadArtifacts(platform string, arch string, version string) {
 	path := "offline/"
 
 	ifExists := func(path string) bool {
@@ -85,7 +95,7 @@ func downloadArtifacts(_os string, arch string, version string) {
 
 	params := map[string]string{
 		"hwid":        "0",
-		"os":          _os,
+		"os":          platform,
 		"arch":        arch,
 		"version":     version,
 		"branch":      "master",
