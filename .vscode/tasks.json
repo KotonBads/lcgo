@@ -7,8 +7,8 @@
 			"command": "build",
 			"args": [
 				"-o",
-				"lcgo",
-				"${fileDirname}",
+				"build/lcgo",
+				"src/cmd/lcgo.go",
 			],
 			"problemMatcher": [
 				"$go"
