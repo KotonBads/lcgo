@@ -22,12 +22,13 @@ type LaunchArgs struct {
 		Xss string `json:"Xss"`
 		Xmn string `json:"Xmn"`
 	}
-	Assets   string   `json:"assets"`
-	Textures string   `json:"textures"`
-	Natives  string   `json:"natives"`
-	MCDir    string   `json:"mcdir"`
-	Agents   []string `json:"agents"`
-	JVMArgs  []string `json:"JVM Args"`
+	DownloadPath string   `json:"downloadPath"`
+	Assets       string   `json:"assets"`
+	Textures     string   `json:"textures"`
+	Natives      string   `json:"natives"`
+	MCDir        string   `json:"mcdir"`
+	Agents       []string `json:"agents"`
+	JVMArgs      []string `json:"JVM Args"`
 }
 
 /*
@@ -79,7 +80,7 @@ func launch(config string, debug bool) {
 	var assetsPath []string
 	assetIndex := launchArgs.Version
 
-	ichorClassPath := func() string {
+	ichorClassPath := func(path string) string {
 		var e string
 		var ver string
 
@@ -92,7 +93,7 @@ func launch(config string, debug bool) {
 				ver += strings.Split(v, "-")[0]
 			}
 		}
-		return fmt.Sprintf("%s/%s,%s", launchArgs.Assets, e, ver)
+		return fmt.Sprintf("%s/%s,%s", path, e, ver)
 	}
 
 	javaAgent := func() string {
@@ -122,9 +123,41 @@ func launch(config string, debug bool) {
 		assetIndex = "1.8"
 	}
 
+	fallbackPath := func(path string) (fallback string) {
+		fmt.Println() // spacing
+		folder, err := os.Stat(path)
+		if path == "" {
+			fmt.Printf("Empty Path: %s\n", err)
+			fmt.Printf("Falling back to downloadPath: %s\n\n", launchArgs.DownloadPath)
+			return launchArgs.DownloadPath + "/" + launchArgs.Version
+		}
+		if !folder.IsDir() {
+			if folder.Name() != path {
+				fmt.Printf("Path is not a folder: %s\n", err)
+				fmt.Printf("Falling back to downloadPath: %s\n", launchArgs.DownloadPath)
+				return launchArgs.DownloadPath + "/" + launchArgs.Version
+			}
+			fmt.Printf("Path is not a folder: %s\n", err)
+			panic("downloadPath and path is the same! No folder to fall back to.")
+		}
+		if os.IsNotExist(err) {
+			if folder.Name() != path {
+				fmt.Printf("Folder does not exist: %s\n", err)
+				fmt.Printf("Falling back to downloadPath: %s\n", launchArgs.DownloadPath)
+				return launchArgs.DownloadPath + "/" + launchArgs.Version
+			}
+			fmt.Printf("Folder does not exist: %s\n", err)
+			panic("downloadPath and path is the same! No folder to fall back to.")
+		}
+		return launchArgs.DownloadPath + "/" + launchArgs.Version
+	}
+
+	launchArgs.Natives = fmt.Sprintf("\"%s/natives\"", fallbackPath(launchArgs.Natives))
+	launchArgs.Assets = fallbackPath(launchArgs.Assets)
+
 	plat, arch := platform()
 
-	downloadArtifacts(plat, arch, launchArgs.Version)
+	downloadArtifacts(plat, arch, launchArgs.Version, launchArgs.Assets)
 
 	if entries, err := os.ReadDir(launchArgs.Assets); err == nil {
 		for _, v := range entries {
@@ -135,14 +168,16 @@ func launch(config string, debug bool) {
 		}
 	}
 
-	cmd := exec.Command("bash", "-c", fmt.Sprintf("%s/bin/java --add-modules jdk.naming.dns --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming -Djna.boot.library.path=%s -Djava.library.path=%s -Dlog4j2.formatMsgNoLookups=true --add-opens java.base/java.io=ALL-UNNAMED -Xms%s -Xmx%s -Xss%s -Xmn%s %s -cp %s %s com.moonsworth.lunar.genesis.Genesis --version %s --accessToken 0 --assetIndex %s --userProperties {} --gameDir %s --texturesDir %s --launcherVersion 69420 --hwid 69420 --width %d --height %d --workingDirectory %s --classpathDir %s --ichorClassPath %s", launchArgs.JRE, launchArgs.Natives, launchArgs.Natives, launchArgs.Memory.Xms, launchArgs.Memory.Xmx, launchArgs.Memory.Xss, launchArgs.Memory.Xmn, strings.Join(launchArgs.JVMArgs, " "), strings.Join(assetsPath, ":"), javaAgent(), launchArgs.Version, assetIndex, launchArgs.MCDir, launchArgs.Textures, launchArgs.Width, launchArgs.Height, launchArgs.Assets, launchArgs.Assets, ichorClassPath()))
+	cmd := exec.Command("bash", "-c", fmt.Sprintf("%s/bin/java --add-modules jdk.naming.dns --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming -Djna.boot.library.path=%s -Djava.library.path=%s -Dlog4j2.formatMsgNoLookups=true --add-opens java.base/java.io=ALL-UNNAMED -Xms%s -Xmx%s -Xss%s -Xmn%s %s -cp %s %s com.moonsworth.lunar.genesis.Genesis --version %s --accessToken 0 --assetIndex %s --userProperties {} --gameDir %s --texturesDir %s --launcherVersion 69420 --hwid 69420 --width %d --height %d --workingDirectory %s --classpathDir %s --ichorClassPath %s", launchArgs.JRE, launchArgs.Natives, launchArgs.Natives, launchArgs.Memory.Xms, launchArgs.Memory.Xmx, launchArgs.Memory.Xss, launchArgs.Memory.Xmn, strings.Join(launchArgs.JVMArgs, " "), strings.Join(assetsPath, ":"), javaAgent(), launchArgs.Version, assetIndex, launchArgs.MCDir, launchArgs.Textures, launchArgs.Width, launchArgs.Height, launchArgs.Assets, launchArgs.Assets, ichorClassPath(launchArgs.Assets)))
 
 	if debug {
 		fmt.Printf("Platform: %s %s\n", plat, arch)
 		fmt.Printf("Versions: %s %s %s\n", launchArgs.Version, assetIndex, strings.Split(cmd.Args[2], ",")[1])
-		fmt.Printf("Using JRE: %s\n\n", launchArgs.JRE)
+		fmt.Printf("Using JRE: %s\n", launchArgs.JRE)
+		fmt.Printf("Natives: %s\n", launchArgs.Natives)
+		fmt.Printf("Assets: %s\n", launchArgs.Assets)
 
-		fmt.Printf("Executing: \n%s\n\n", strings.Join(cmd.Args, " "))
+		fmt.Printf("\nExecuting: \n%s\n\n", strings.Join(cmd.Args, " "))
 	}
 
 	var stdBuffer bytes.Buffer

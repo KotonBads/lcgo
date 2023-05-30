@@ -9,9 +9,10 @@
         "Xss": "2M",
         "Xmn": "1G"
     },
-    "assets": "/path/to/lunar/files",
+    "downloadPath": "/path/to/download/artifacts",
+    "assets": "(optional) /path/to/lunar/files",
     "textures": "path/to/lunar/textures",
-    "natives": "/path/to/natives",
+    "natives": "(optional) /path/to/natives",
     "mcdir": "/path/to/minecraft/dir",
     "agents": [
         "/path/to/java/agent",
