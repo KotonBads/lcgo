@@ -9,14 +9,21 @@
         "Xss": "2M",
         "Xmn": "1G"
     },
+    "env": [
+        {
+            "name": "(optional) key",
+            "value": "(optonal) value as a string"
+        }
+    ],
+    "preJava": "(optional) /path/to/executable ex: mangohud",
     "downloadPath": "/path/to/download/artifacts",
     "assets": "(optional) /path/to/lunar/files",
     "textures": "path/to/lunar/textures",
     "natives": "(optional) /path/to/natives",
     "mcdir": "/path/to/minecraft/dir",
     "agents": [
-        "/path/to/java/agent",
-        "/hi/weave"
+        "(optional) /path/to/java/agent",
+        "(optional) /hi/weave"
     ],
     "JVM Args": [
         "-XX:+UnlockExperimentalVMOptions",
