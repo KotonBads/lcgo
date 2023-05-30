@@ -187,6 +187,7 @@ func Launch(config string, debug bool) {
 
 	if debug {
 		fmt.Println()
+		fmt.Printf("Config: %s\n", config)
 		fmt.Printf("Platform: %s %s\n", plat, arch)
 		fmt.Printf("Versions: %s %s %s\n", launchArgs.Version, assetIndex, strings.Split(cmd.Args[2], ",")[1])
 		fmt.Printf("Using JRE: %s\n", launchArgs.JRE)
