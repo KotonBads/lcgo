@@ -6,7 +6,9 @@
 			"label": "go: build package",
 			"command": "build",
 			"args": [
-				"${fileDirname}"
+				"-o",
+				"lcgo",
+				"${fileDirname}",
 			],
 			"problemMatcher": [
 				"$go"
