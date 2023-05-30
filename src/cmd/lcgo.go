@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"lcgo"
 )
 
 func fetch(_os string, arch string, version string) (artifacts map[string]any, err error) {
@@ -52,11 +54,11 @@ func write(natives map[string]any) {
 
 func main() {
 	version := "1.8.9"
-	os, arch := platform()
+	os, arch := lcgo.Platform()
 
 	if natives, err := fetch(os, arch, version); err == nil {
 		// fmt.Println(natives)
 		write(natives)
-		launch("config.json", true)
+		lcgo.Launch("/home/koton-bads/Documents/Go/LC/src/cmd/config.json", true)
 	}
 }
