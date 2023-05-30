@@ -62,9 +62,9 @@ Download artifacts from LunarClient's API.
 
 @param {string} version - Minecraft version to download for (1.7, 1.8.9, ..., 1.19.4)
 
+@param {string} path - Download path (~/.lunarclient/offline)
 */
-func downloadArtifacts(platform string, arch string, version string) {
-	path := "offline/"
+func downloadArtifacts(platform string, arch string, version string, path string) {
 
 	ifExists := func(path string) bool {
 		if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
