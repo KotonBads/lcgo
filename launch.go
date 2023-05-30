@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 )
 
@@ -29,7 +30,50 @@ type LaunchArgs struct {
 	JVMArgs  []string `json:"JVM Args"`
 }
 
-func launch(config string) {
+/*
+Returns the current platform and architecture. Panics when LunarClient doesn't support the platform and/or the architecture.
+
+@returns {string} platform - Current platform (win32, linux, darwin)
+
+@returns {string} arch - Current platform architecture (amd64, amd64p32)
+*/
+func platform() (platform string, arch string) {
+	var _platform string
+	var _arch string
+
+	switch runtime.GOOS {
+	case "windows":
+		_platform = "win32"
+	case "linux":
+		_platform = "linux"
+	case "darwin":
+		_platform = "darwin"
+	default:
+		panic(fmt.Sprintf("Platform not supported: %s", runtime.GOOS))
+	}
+
+	switch runtime.GOARCH {
+	case "amd64":
+		_arch = "x64"
+	case "amd64p32":
+		if _platform != "win32" {
+			panic(fmt.Sprintf("Arch not supported for platform: %s", _platform))
+		}
+		_arch = "ia32"
+	default:
+		panic(fmt.Sprintf("Arch not supported: %s", runtime.GOARCH))
+	}
+	return _platform, _arch
+}
+
+/*
+Launches LunarClient.
+
+@param {string} config - Path to config file
+
+@param {bool} debug - Toggles debug output
+*/
+func launch(config string, debug bool) {
 	var launchArgs LaunchArgs
 	var assets []string
 	var assetsPath []string
@@ -78,6 +122,10 @@ func launch(config string) {
 		assetIndex = "1.8"
 	}
 
+	plat, arch := platform()
+
+	downloadArtifacts(plat, arch, launchArgs.Version)
+
 	if entries, err := os.ReadDir(launchArgs.Assets); err == nil {
 		for _, v := range entries {
 			if !v.IsDir() && !strings.HasSuffix(v.Name(), ".zip") && !strings.HasPrefix(v.Name(), "OptiFine") {
@@ -89,7 +137,13 @@ func launch(config string) {
 
 	cmd := exec.Command("bash", "-c", fmt.Sprintf("%s/bin/java --add-modules jdk.naming.dns --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming -Djna.boot.library.path=%s -Djava.library.path=%s -Dlog4j2.formatMsgNoLookups=true --add-opens java.base/java.io=ALL-UNNAMED -Xms%s -Xmx%s -Xss%s -Xmn%s %s -cp %s %s com.moonsworth.lunar.genesis.Genesis --version %s --accessToken 0 --assetIndex %s --userProperties {} --gameDir %s --texturesDir %s --launcherVersion 69420 --hwid 69420 --width %d --height %d --workingDirectory %s --classpathDir %s --ichorClassPath %s", launchArgs.JRE, launchArgs.Natives, launchArgs.Natives, launchArgs.Memory.Xms, launchArgs.Memory.Xmx, launchArgs.Memory.Xss, launchArgs.Memory.Xmn, strings.Join(launchArgs.JVMArgs, " "), strings.Join(assetsPath, ":"), javaAgent(), launchArgs.Version, assetIndex, launchArgs.MCDir, launchArgs.Textures, launchArgs.Width, launchArgs.Height, launchArgs.Assets, launchArgs.Assets, ichorClassPath()))
 
-	fmt.Println(cmd.Args)
+	if debug {
+		fmt.Printf("Platform: %s %s\n", plat, arch)
+		fmt.Printf("Versions: %s %s %s\n", launchArgs.Version, assetIndex, strings.Split(cmd.Args[2], ",")[1])
+		fmt.Printf("Using JRE: %s\n\n", launchArgs.JRE)
+
+		fmt.Printf("Executing: \n%s\n\n", strings.Join(cmd.Args, " "))
+	}
 
 	var stdBuffer bytes.Buffer
 	mw := io.MultiWriter(os.Stdout, &stdBuffer)
