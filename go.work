@@ -1,3 +1,6 @@
 go 1.20
 
-use ./src/lcgo
+use (
+	./src/cmd
+	./src/lcgo
+)
