@@ -4,8 +4,9 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/KotonBads/lcgo/utils"
 	"os"
+
+	lcgo "github.com/KotonBads/lcgo/utils"
 )
 
 func main() {
