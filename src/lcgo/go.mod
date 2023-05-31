@@ -1,4 +1,4 @@
-module lcgo
+module lcgo/utils
 
 go 1.20
 
