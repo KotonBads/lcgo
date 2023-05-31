@@ -8,7 +8,7 @@
 			"args": [
 				"-o",
 				"build/lcgo",
-				"lcgo/main/lcgo.go",
+				"lcgo/lcgo.go",
 			],
 			"problemMatcher": [
 				"$go"
