@@ -83,7 +83,7 @@ func Launch(config string, debug bool) {
 	var launchArgs LaunchArgs
 	var assets []string
 	var assetsPath []string
-	assetIndex := launchArgs.Version
+	var assetIndex string
 
 	ichorClassPath := func(path string) string {
 		var e string
@@ -132,6 +132,8 @@ func Launch(config string, debug bool) {
 
 	if launchArgs.Version == "1.8.9" {
 		assetIndex = "1.8"
+	} else {
+		assetIndex = launchArgs.Version
 	}
 
 	fallbackPath := func(path string) (fallback string) {
@@ -189,7 +191,7 @@ func Launch(config string, debug bool) {
 		fmt.Println()
 		fmt.Printf("Config: %s\n", config)
 		fmt.Printf("Platform: %s %s\n", plat, arch)
-		fmt.Printf("Versions: %s %s %s\n", launchArgs.Version, assetIndex, strings.Split(cmd.Args[2], ",")[1])
+		fmt.Printf("MC Version: %s\nAsset Index: %s\nIchor: %s\n", launchArgs.Version, assetIndex, strings.Split(cmd.Args[2], ",")[1])
 		fmt.Printf("Using JRE: %s\n", launchArgs.JRE)
 		fmt.Printf("Natives: %s\n", launchArgs.Natives)
 		fmt.Printf("Assets: %s\n", launchArgs.Assets)
