@@ -1,4 +1,4 @@
-package lcgo
+package main
 
 import (
 	"bytes"
