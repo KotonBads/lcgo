@@ -1,13 +1,22 @@
 # LC Go
 
 A Lightweight LunarClient launcher written in Go.
+(currently for Linux and macOS only)
 
 ---
 
 # Installation
-(currently for Linux and macOS only)
 
+## Go install
+```sh
+go install github.com/KotonBads/lcgo/lcgo@latest
+```
+or if you want a specific commit
+```sh
+go install github.com/KotonBads/lcgo/lcgo@commit hash
+```
 
+## Git
 - Clone the repo
 ```sh
 git clone https://github.com/KotonBads/lcgo.git lcgo
@@ -20,7 +29,7 @@ git clone https://github.com/KotonBads/lcgo.git lcgo
 - Requires Go 1.20 or newer
 - Run this command in the terminal
 ```sh
-mkdir build && go build -o build/lcgo src/cmd/lcgo.go
+mkdir build && go build -o build/lcgo lcgo/lcgo.go
 ```
 
 LC Go should now be built inside the `build/` folder
