@@ -4,7 +4,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"lcgo/utils"
+	"github.com/KotonBads/lcgo/utils"
 	"os"
 )
 

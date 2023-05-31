@@ -1,4 +1,4 @@
-module lcgo/utils
+module github.com/KotonBads/lcgo/utils
 
 go 1.20
 
