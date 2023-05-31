@@ -32,12 +32,12 @@ LC Go should now be built inside the `build/` folder
 - Fill in any required fields
 - Run this command in the terminal
 ```sh
-./path/to/lcgo/binary -config /path/to/config.json
+./path/to/lcgo/binary -config /path/to/config.json -version <insert minecraft version>
 ```
 ### Optional:
 If you want the debug output, run this instead
 ```sh
-./path/to/lcgo/binary -config /path/to/config.json -debug=true
+./path/to/lcgo/binary -config /path/to/config.json -version <insert minecraft version> -debug=true
 ```
 
 ---
