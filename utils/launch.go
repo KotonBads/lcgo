@@ -84,13 +84,13 @@ func Launch(config string, debug bool) {
 		if path == "" {
 			fmt.Printf("Empty Path: %s\n", err)
 			fmt.Printf("Falling back to downloadPath: %s\n\n", launchArgs.DownloadPath)
-			return launchArgs.DownloadPath + "/" + launchArgs.Version
+			return launchArgs.DownloadPath + "/"
 		}
 		if !folder.IsDir() {
 			if folder.Name() != path {
 				fmt.Printf("Path is not a folder: %s\n", err)
 				fmt.Printf("Falling back to downloadPath: %s\n", launchArgs.DownloadPath)
-				return launchArgs.DownloadPath + "/" + launchArgs.Version
+				return launchArgs.DownloadPath + "/"
 			}
 			fmt.Printf("Path is not a folder: %s\n", err)
 			panic("downloadPath and path is the same! No folder to fall back to.")
@@ -99,12 +99,12 @@ func Launch(config string, debug bool) {
 			if folder.Name() != path {
 				fmt.Printf("Folder does not exist: %s\n", err)
 				fmt.Printf("Falling back to downloadPath: %s\n", launchArgs.DownloadPath)
-				return launchArgs.DownloadPath + "/" + launchArgs.Version
+				return launchArgs.DownloadPath + "/"
 			}
 			fmt.Printf("Folder does not exist: %s\n", err)
 			panic("downloadPath and path is the same! No folder to fall back to.")
 		}
-		return launchArgs.DownloadPath + "/" + launchArgs.Version
+		return launchArgs.DownloadPath + "/"
 	}
 
 	for _, v := range launchArgs.Env {
@@ -131,12 +131,14 @@ func Launch(config string, debug bool) {
 		launchArgs.JRE = fmt.Sprintf("%s %s", launchArgs.PreJava, launchArgs.JRE)
 	}
 
-	launchArgs.Natives = fmt.Sprintf("\"%s/natives\"", fallbackPath(launchArgs.Natives))
-	launchArgs.Assets = fallbackPath(launchArgs.Assets)
+	launchArgs.Natives = fmt.Sprintf("\"%s/%s/natives\"", fallbackPath(launchArgs.Natives), launchArgs.Version)
+	launchArgs.Assets = fallbackPath(launchArgs.Assets) + launchArgs.Version + "/"
+	launchArgs.Textures = fmt.Sprintf("%s/textures", fallbackPath(launchArgs.Textures))
 
 	plat, arch := Platform()
 
-	artifacts := downloadArtifacts(plat, arch, launchArgs.Version, launchArgs.Assets)
+	artifacts := DownloadArtifacts(plat, arch, launchArgs.Version, launchArgs.Assets)
+	DownloadTextures(plat, arch, launchArgs.Version, launchArgs.Textures, debug)
 
 	for _, v := range artifacts {
 		if v.Type == "CLASS_PATH" {
