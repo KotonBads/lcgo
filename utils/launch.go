@@ -60,6 +60,8 @@ func Launch(config string, debug bool) {
 	var externalFiles []string
 	var assetIndex string
 	sep := ":"
+	prog := "bash"
+	e := "-c"
 
 	javaAgent := func() string {
 		var e string
@@ -148,9 +150,11 @@ func Launch(config string, debug bool) {
 
 	if plat == "win32" {
 		sep = ";"
+		prog = "cmd"
+		e = "/c"
 	}
 
-	cmd := exec.Command("bash", "-c", fmt.Sprintf("%s/bin/java --add-modules jdk.naming.dns --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming -Djna.boot.library.path=%s -Djava.library.path=%s -Dlog4j2.formatMsgNoLookups=true --add-opens java.base/java.io=ALL-UNNAMED -Xms%s -Xmx%s -Xss%s -Xmn%s %s -cp %s %s com.moonsworth.lunar.genesis.Genesis --version %s --accessToken 0 --assetIndex %s --userProperties {} --gameDir %s --texturesDir %s --launcherVersion 69420 --hwid 69420 --width %d --height %d --workingDirectory %s --classpathDir %s --ichorClassPath %s --ichorExternalFiles %s", launchArgs.JRE, launchArgs.Natives, launchArgs.Natives, launchArgs.Memory.Xms, launchArgs.Memory.Xmx, launchArgs.Memory.Xss, launchArgs.Memory.Xmn, strings.Join(launchArgs.JVMArgs, " "), strings.Join(classPath, sep), javaAgent(), launchArgs.Version, assetIndex, launchArgs.MCDir, launchArgs.Textures, launchArgs.Width, launchArgs.Height, launchArgs.Assets, launchArgs.Assets, strings.Join(classPath, ","), strings.Join(externalFiles, ",")))
+	cmd := exec.Command(prog, e, fmt.Sprintf("%s/bin/java --add-modules jdk.naming.dns --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming -Djna.boot.library.path=%s -Djava.library.path=%s -Dlog4j2.formatMsgNoLookups=true --add-opens java.base/java.io=ALL-UNNAMED -Xms%s -Xmx%s -Xss%s -Xmn%s %s -cp %s %s com.moonsworth.lunar.genesis.Genesis --version %s --accessToken 0 --assetIndex %s --userProperties {} --gameDir %s --texturesDir %s --launcherVersion 69420 --hwid 69420 --width %d --height %d --workingDirectory %s --classpathDir %s --ichorClassPath %s --ichorExternalFiles %s", launchArgs.JRE, launchArgs.Natives, launchArgs.Natives, launchArgs.Memory.Xms, launchArgs.Memory.Xmx, launchArgs.Memory.Xss, launchArgs.Memory.Xmn, strings.Join(launchArgs.JVMArgs, " "), strings.Join(classPath, sep), javaAgent(), launchArgs.Version, assetIndex, launchArgs.MCDir, launchArgs.Textures, launchArgs.Width, launchArgs.Height, launchArgs.Assets, launchArgs.Assets, strings.Join(classPath, ","), strings.Join(externalFiles, ",")))
 
 	if debug {
 		fmt.Println()
