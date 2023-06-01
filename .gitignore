@@ -3,3 +3,4 @@ offline/
 config.json
 build
 logs/
+test*
