@@ -27,7 +27,7 @@ Download artifacts from LunarClient's API.
 
 @returns {[]Artifacts} - Array of Artifacts
 */
-func downloadArtifacts(platform string, arch string, version string, path string) (artifacts []Artifacts) {
+func DownloadArtifacts(platform string, arch string, version string, path string) (artifacts []Artifacts) {
 
 	ifExists := func(path string) bool {
 		if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
