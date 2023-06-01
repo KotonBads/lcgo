@@ -1,14 +1,11 @@
 package lcgo
 
 import (
-	"bytes"
 	"crypto/sha1"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"log"
-	"net/http"
 	"os"
 	"path/filepath"
 
@@ -16,42 +13,6 @@ import (
 
 	"github.com/cavaliergopher/grab/v3"
 )
-
-type Artifact struct {
-	Name string `json:"name"`
-	Sha1 string `json:"sha1"`
-	Url  string `json:"url"`
-}
-
-type LaunchMeta struct {
-	Success        bool `json:"success"`
-	LaunchTypeData struct {
-		Artifacts []Artifact `json:"artifacts"`
-		MainClass string     `json:"mainClass"`
-	} `json:"launchTypeData"`
-	Licenses []struct {
-		File string `json:"file"`
-		URL  string `json:"url"`
-		Sha1 string `json:"sha1"`
-	} `json:"licenses"`
-	Textures struct {
-		IndexURL  string `json:"indexUrl"`
-		IndexSha1 string `json:"indexSha1"`
-		BaseURL   string `json:"baseUrl"`
-	} `json:"textures"`
-	Jre struct {
-		Download struct {
-			URL       string `json:"url"`
-			Extension string `json:"extension"`
-		} `json:"download"`
-		ExecutablePathInArchive []string    `json:"executablePathInArchive"`
-		CheckFiles              [][]string  `json:"checkFiles"`
-		ExtraArguments          []string    `json:"extraArguments"`
-		JavawDownload           interface{} `json:"javawDownload"`
-		JavawExeChecksum        interface{} `json:"javawExeChecksum"`
-		JavaExeChecksum         string      `json:"javaExeChecksum"`
-	} `json:"jre"`
-}
 
 /*
 Download artifacts from LunarClient's API.
@@ -63,8 +24,10 @@ Download artifacts from LunarClient's API.
 @param {string} version - Minecraft version to download for (1.7, 1.8.9, ..., 1.19.4)
 
 @param {string} path - Download path (~/.lunarclient/offline)
+
+@returns {[]Artifacts} - Array of Artifacts
 */
-func downloadArtifacts(platform string, arch string, version string, path string) {
+func downloadArtifacts(platform string, arch string, version string, path string) (artifacts []Artifacts) {
 
 	ifExists := func(path string) bool {
 		if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
@@ -91,28 +54,10 @@ func downloadArtifacts(platform string, arch string, version string, path string
 		return false
 	}
 
-	url := "https://api.lunarclientprod.com/launcher/launch"
+	natives, err := FetchAPI(platform, arch, version)
 
-	params := map[string]string{
-		"hwid":        "0",
-		"os":          platform,
-		"arch":        arch,
-		"version":     version,
-		"branch":      "master",
-		"launch_type": "OFFLINE",
-		"classifier":  "optifine",
-	}
-
-	jsonVal, _ := json.Marshal(params)
-	var natives LaunchMeta
-
-	response, _ := http.Post(url, "application/json", bytes.NewBuffer(jsonVal))
-
-	body, _ := io.ReadAll(response.Body)
-	_err := json.Unmarshal(body, &natives)
-
-	if _err != nil {
-		panic(_err)
+	if err != nil {
+		panic(err)
 	}
 
 	for _, v := range natives.LaunchTypeData.Artifacts {
@@ -134,4 +79,5 @@ func downloadArtifacts(platform string, arch string, version string, path string
 			fmt.Println(v.Name, ": Already Downloaded / Up to date")
 		}
 	}
+	return natives.LaunchTypeData.Artifacts
 }
