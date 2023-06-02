@@ -162,7 +162,7 @@ func Launch(config string, debug bool) {
 		fmt.Println()
 		fmt.Printf("Config: %s\n", config)
 		fmt.Printf("Platform: %s %s\n", plat, arch)
-		fmt.Printf("MC Version: %s\nAsset Index: %s\nIchor: %s\n", launchArgs.Version, assetIndex, strings.Split(cmd.Args[2], ",")[1])
+		fmt.Printf("MC Version: %s\nAsset Index: %s\nIchor: %s\n", launchArgs.Version, assetIndex, externalFiles)
 		fmt.Printf("Using JRE: %s\n", launchArgs.JRE)
 		fmt.Printf("Natives: %s\n", launchArgs.Natives)
 		fmt.Printf("Assets: %s\n", launchArgs.Assets)
