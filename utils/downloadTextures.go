@@ -15,6 +15,11 @@ import (
 
 func DownloadTextures(platform string, arch string, version string, path string, debug bool) {
 	var response LaunchMeta
+	_file := "/"
+
+	if platform == "win32" {
+		_file = "\\"
+	}
 
 	ifExists := func(path string) bool {
 		if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
@@ -45,8 +50,8 @@ func DownloadTextures(platform string, arch string, version string, path string,
 		for _, v := range index {
 			e := strings.Split(v, " ")
 
-			if !ifExists(path+"/"+e[0]) || !checkHash(path+"/"+e[0], e[1]) {
-				file, err := grab.Get(path+"/"+e[0], response.Textures.BaseURL+e[1])
+			if !ifExists(path+_file+e[0]) || !checkHash(path+_file+e[0], e[1]) {
+				file, err := grab.Get(path+_file+e[0], response.Textures.BaseURL+e[1])
 
 				if err != nil {
 					panic(err)

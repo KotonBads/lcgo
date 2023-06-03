@@ -28,6 +28,11 @@ Download artifacts from LunarClient's API.
 @returns {[]Artifacts} - Array of Artifacts
 */
 func DownloadArtifacts(platform string, arch string, version string, path string) (artifacts []Artifacts) {
+	_file := "/"
+
+	if platform == "win32" {
+		_file = "\\"
+	}
 
 	ifExists := func(path string) bool {
 		if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
@@ -61,17 +66,17 @@ func DownloadArtifacts(platform string, arch string, version string, path string
 	}
 
 	for _, v := range natives.LaunchTypeData.Artifacts {
-		if !ifExists(fmt.Sprintf("%s/%s", path, v.Name)) || !checkHash(fmt.Sprintf("%s/%s", path, v.Name), v.Sha1) || filepath.Ext(fmt.Sprintf("%s/%s", path, v.Name)) == ".zip" {
-			file, err := grab.Get(fmt.Sprintf("%s/%s", path, v.Name), v.Url)
+		if !ifExists(fmt.Sprintf("%s%s%s", path, _file, v.Name)) || !checkHash(fmt.Sprintf("%s%s%s", path, _file, v.Name), v.Sha1) || filepath.Ext(fmt.Sprintf("%s%s%s", path, _file, v.Name)) == ".zip" {
+			file, err := grab.Get(fmt.Sprintf("%s%s%s", path, _file, v.Name), v.Url)
 			if err != nil {
 				panic(err)
 			}
 
 			fmt.Println("Downloaded file: ", file.Filename)
 
-			if filepath.Ext(fmt.Sprintf("%s/%s", path, v.Name)) == ".zip" {
+			if filepath.Ext(fmt.Sprintf("%s%s%s", path, _file, v.Name)) == ".zip" {
 				fmt.Println("Found a zip file, Extracting...")
-				if err := unzip.Extract(fmt.Sprintf("%s/%s", path, v.Name), fmt.Sprintf("%s/natives", path)); err != nil {
+				if err := unzip.Extract(fmt.Sprintf("%s%s%s", path, _file, v.Name), fmt.Sprintf("%s%snatives", path, _file)); err != nil {
 					panic(err)
 				}
 			}
