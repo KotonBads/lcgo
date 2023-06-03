@@ -59,9 +59,18 @@ func Launch(config string, debug bool) {
 	var classPath []string
 	var externalFiles []string
 	var assetIndex string
+	plat, arch := Platform()
 	sep := ":"
 	prog := "bash"
 	e := "-c"
+	file := "/"
+
+	if plat == "win32" {
+		sep = ";"
+		prog = "cmd"
+		e = "/c"
+		file = "\\"
+	}
 
 	javaAgent := func() string {
 		var e string
@@ -84,13 +93,13 @@ func Launch(config string, debug bool) {
 		if path == "" {
 			fmt.Printf("Empty Path: %s\n", err)
 			fmt.Printf("Falling back to downloadPath: %s\n\n", launchArgs.DownloadPath)
-			return launchArgs.DownloadPath + "/"
+			return launchArgs.DownloadPath + file
 		}
 		if !folder.IsDir() {
 			if folder.Name() != path {
 				fmt.Printf("Path is not a folder: %s\n", err)
 				fmt.Printf("Falling back to downloadPath: %s\n", launchArgs.DownloadPath)
-				return launchArgs.DownloadPath + "/"
+				return launchArgs.DownloadPath + file
 			}
 			fmt.Printf("Path is not a folder: %s\n", err)
 			panic("downloadPath and path is the same! No folder to fall back to.")
@@ -99,12 +108,12 @@ func Launch(config string, debug bool) {
 			if folder.Name() != path {
 				fmt.Printf("Folder does not exist: %s\n", err)
 				fmt.Printf("Falling back to downloadPath: %s\n", launchArgs.DownloadPath)
-				return launchArgs.DownloadPath + "/"
+				return launchArgs.DownloadPath + file
 			}
 			fmt.Printf("Folder does not exist: %s\n", err)
 			panic("downloadPath and path is the same! No folder to fall back to.")
 		}
-		return launchArgs.DownloadPath + "/"
+		return launchArgs.DownloadPath + file
 	}
 
 	for _, v := range launchArgs.Env {
@@ -131,29 +140,21 @@ func Launch(config string, debug bool) {
 		launchArgs.JRE = fmt.Sprintf("%s %s", launchArgs.PreJava, launchArgs.JRE)
 	}
 
-	launchArgs.Natives = fmt.Sprintf("\"%s/%s/natives\"", fallbackPath(launchArgs.Natives), launchArgs.Version)
+	launchArgs.Natives = fmt.Sprintf("\"%s%s%s/natives\"", fallbackPath(launchArgs.Natives), file, launchArgs.Version)
 	launchArgs.Assets = fallbackPath(launchArgs.Assets) + launchArgs.Version + "/"
-	launchArgs.Textures = fmt.Sprintf("%s/textures", fallbackPath(launchArgs.Textures))
-
-	plat, arch := Platform()
+	launchArgs.Textures = fmt.Sprintf("%s%stextures", fallbackPath(launchArgs.Textures), file)
 
 	artifacts := DownloadArtifacts(plat, arch, launchArgs.Version, launchArgs.Assets)
 	DownloadTextures(plat, arch, launchArgs.Version, launchArgs.Textures, debug)
 
 	for _, v := range artifacts {
 		if v.Type == "CLASS_PATH" {
-			classPath = append(classPath, fmt.Sprintf("%s/%s", launchArgs.Assets, v.Name))
+			classPath = append(classPath, fmt.Sprintf("%s%s%s", launchArgs.Assets, file, v.Name))
 		}
 
 		if v.Type == "EXTERNAL_FILE" {
-			externalFiles = append(externalFiles, fmt.Sprintf("%s/%s", launchArgs.Assets, v.Name))
+			externalFiles = append(externalFiles, fmt.Sprintf("%s%s%s", launchArgs.Assets, file, v.Name))
 		}
-	}
-
-	if plat == "win32" {
-		sep = ";"
-		prog = "cmd"
-		e = "/c"
 	}
 
 	cmd := exec.Command(prog, e, fmt.Sprintf("%s/bin/java --add-modules jdk.naming.dns --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming -Djna.boot.library.path=%s -Djava.library.path=%s -Dlog4j2.formatMsgNoLookups=true --add-opens java.base/java.io=ALL-UNNAMED -Xms%s -Xmx%s -Xss%s -Xmn%s %s -cp %s %s com.moonsworth.lunar.genesis.Genesis --version %s --accessToken 0 --assetIndex %s --userProperties {} --gameDir %s --texturesDir %s --launcherVersion 69420 --hwid 69420 --width %d --height %d --workingDirectory %s --classpathDir %s --ichorClassPath %s --ichorExternalFiles %s", launchArgs.JRE, launchArgs.Natives, launchArgs.Natives, launchArgs.Memory.Xms, launchArgs.Memory.Xmx, launchArgs.Memory.Xss, launchArgs.Memory.Xmn, strings.Join(launchArgs.JVMArgs, " "), strings.Join(classPath, sep), javaAgent(), launchArgs.Version, assetIndex, launchArgs.MCDir, launchArgs.Textures, launchArgs.Width, launchArgs.Height, launchArgs.Assets, launchArgs.Assets, strings.Join(classPath, ","), strings.Join(externalFiles, ",")))
