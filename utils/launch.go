@@ -140,8 +140,8 @@ func Launch(config string, debug bool) {
 		launchArgs.JRE = fmt.Sprintf("%s %s", launchArgs.PreJava, launchArgs.JRE)
 	}
 
-	launchArgs.Natives = fmt.Sprintf("\"%s%s%s/natives\"", fallbackPath(launchArgs.Natives), file, launchArgs.Version)
-	launchArgs.Assets = fallbackPath(launchArgs.Assets) + launchArgs.Version + "/"
+	launchArgs.Natives = fmt.Sprintf("\"%s%s%s%snatives\"", fallbackPath(launchArgs.Natives), file, file, launchArgs.Version)
+	launchArgs.Assets = fallbackPath(launchArgs.Assets) + launchArgs.Version + file
 	launchArgs.Textures = fmt.Sprintf("%s%stextures", fallbackPath(launchArgs.Textures), file)
 
 	artifacts := DownloadArtifacts(plat, arch, launchArgs.Version, launchArgs.Assets)
@@ -157,7 +157,7 @@ func Launch(config string, debug bool) {
 		}
 	}
 
-	cmd := exec.Command(prog, e, fmt.Sprintf("%s/bin/java --add-modules jdk.naming.dns --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming -Djna.boot.library.path=%s -Djava.library.path=%s -Dlog4j2.formatMsgNoLookups=true --add-opens java.base/java.io=ALL-UNNAMED -Xms%s -Xmx%s -Xss%s -Xmn%s %s -cp %s %s com.moonsworth.lunar.genesis.Genesis --version %s --accessToken 0 --assetIndex %s --userProperties {} --gameDir %s --texturesDir %s --launcherVersion 69420 --hwid 69420 --width %d --height %d --workingDirectory %s --classpathDir %s --ichorClassPath %s --ichorExternalFiles %s", launchArgs.JRE, launchArgs.Natives, launchArgs.Natives, launchArgs.Memory.Xms, launchArgs.Memory.Xmx, launchArgs.Memory.Xss, launchArgs.Memory.Xmn, strings.Join(launchArgs.JVMArgs, " "), strings.Join(classPath, sep), javaAgent(), launchArgs.Version, assetIndex, launchArgs.MCDir, launchArgs.Textures, launchArgs.Width, launchArgs.Height, launchArgs.Assets, launchArgs.Assets, strings.Join(classPath, ","), strings.Join(externalFiles, ",")))
+	cmd := exec.Command(prog, e, fmt.Sprintf("%s%sbin%sjava --add-modules jdk.naming.dns --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming -Djna.boot.library.path=%s -Djava.library.path=%s -Dlog4j2.formatMsgNoLookups=true --add-opens java.base/java.io=ALL-UNNAMED -Xms%s -Xmx%s -Xss%s -Xmn%s %s -cp %s %s com.moonsworth.lunar.genesis.Genesis --version %s --accessToken 0 --assetIndex %s --userProperties {} --gameDir %s --texturesDir %s --launcherVersion 69420 --hwid 69420 --width %d --height %d --workingDirectory %s --classpathDir %s --ichorClassPath %s --ichorExternalFiles %s", launchArgs.JRE, file, file, launchArgs.Natives, launchArgs.Natives, launchArgs.Memory.Xms, launchArgs.Memory.Xmx, launchArgs.Memory.Xss, launchArgs.Memory.Xmn, strings.Join(launchArgs.JVMArgs, " "), strings.Join(classPath, sep), javaAgent(), launchArgs.Version, assetIndex, launchArgs.MCDir, launchArgs.Textures, launchArgs.Width, launchArgs.Height, launchArgs.Assets, launchArgs.Assets, strings.Join(classPath, ","), strings.Join(externalFiles, ",")))
 
 	if debug {
 		fmt.Println()
