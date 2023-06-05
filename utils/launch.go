@@ -140,7 +140,7 @@ func Launch(config string, debug bool) {
 		launchArgs.JRE = fmt.Sprintf("%s %s", launchArgs.PreJava, launchArgs.JRE)
 	}
 
-	launchArgs.Natives = fmt.Sprintf("\"%s%s%s%snatives\"", fallbackPath(launchArgs.Natives), file, file, launchArgs.Version)
+	launchArgs.Natives = fmt.Sprintf("\"%s%s%s%snatives\"", fallbackPath(launchArgs.Natives), file, launchArgs.Version, file)
 	launchArgs.Assets = fallbackPath(launchArgs.Assets) + launchArgs.Version + file
 	launchArgs.Textures = fmt.Sprintf("%s%stextures", fallbackPath(launchArgs.Textures), file)
 
