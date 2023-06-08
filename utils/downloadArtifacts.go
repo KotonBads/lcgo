@@ -69,7 +69,7 @@ func DownloadArtifacts(platform string, arch string, version string, path string
 		if !ifExists(fmt.Sprintf("%s%s%s", path, _file, v.Name)) || !checkHash(fmt.Sprintf("%s%s%s", path, _file, v.Name), v.Sha1) || filepath.Ext(fmt.Sprintf("%s%s%s", path, _file, v.Name)) == ".zip" {
 			file, err := grab.Get(fmt.Sprintf("%s%s%s", path, _file, v.Name), v.Url)
 			if err != nil {
-				panic(err)
+				fmt.Printf("Couldn't download %s: %s\n", v.Url, err)
 			}
 
 			fmt.Println("Downloaded file: ", file.Filename)
