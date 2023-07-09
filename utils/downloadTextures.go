@@ -9,12 +9,15 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/cavaliergopher/grab/v3"
 )
 
 func DownloadTextures(platform string, arch string, version string, path string, debug bool) {
 	var response LaunchMeta
+	var wg sync.WaitGroup
+
 	_file := "/"
 
 	if platform == "win32" {
@@ -48,26 +51,31 @@ func DownloadTextures(platform string, arch string, version string, path string,
 
 	download := func(index []string) {
 		for _, v := range index {
-			e := strings.Split(v, " ")
+			wg.Add(1)
+			go func(v string) {
+				defer wg.Done()
+				e := strings.Split(v, " ")
 
-			if !ifExists(path+_file+e[0]) || !checkHash(path+_file+e[0], e[1]) {
-				file, err := grab.Get(path+_file+e[0], response.Textures.BaseURL+e[1])
+				if !ifExists(path+_file+e[0]) || !checkHash(path+_file+e[0], e[1]) {
+					file, err := grab.Get(path+_file+e[0], response.Textures.BaseURL+e[1])
 
-				if err != nil {
-					panic(err)
-				}
+					if err != nil {
+						panic(err)
+					}
 
-				if debug {
-					fmt.Println()
-					fmt.Println("Downloaded: ", file.Filename)
+					if debug {
+						fmt.Println()
+						fmt.Println("Downloaded: ", file.Filename)
+					}
+				} else {
+					if debug {
+						fmt.Println()
+						fmt.Println("Already up-to-date: ", e[0])
+					}
 				}
-			} else {
-				if debug {
-					fmt.Println()
-					fmt.Println("Already up-to-date: ", e[0])
-				}
-			}
+			}(v)
 		}
+		wg.Wait()
 	}
 
 	if res, err := FetchAPI(platform, arch, version); err == nil {
