@@ -14,7 +14,7 @@ import (
 	"github.com/cavaliergopher/grab/v3"
 )
 
-func DownloadTextures(platform string, arch string, version string, path string, debug bool) {
+func DownloadTextures(platform string, arch string, version string, path string, debug bool, module string) {
 	var response LaunchMeta
 	var wg sync.WaitGroup
 
@@ -78,7 +78,7 @@ func DownloadTextures(platform string, arch string, version string, path string,
 		wg.Wait()
 	}
 
-	if res, err := FetchAPI(platform, arch, version); err == nil {
+	if res, err := FetchAPI(platform, arch, version, module); err == nil {
 		response = res
 	}
 

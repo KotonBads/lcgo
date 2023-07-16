@@ -27,7 +27,7 @@ Download artifacts from LunarClient's API.
 
 @returns {[]Artifacts} - Array of Artifacts
 */
-func DownloadArtifacts(platform string, arch string, version string, path string) (artifacts []Artifacts) {
+func DownloadArtifacts(platform string, arch string, version string, path string, module string) (artifacts []Artifacts) {
 	_file := "/"
 
 	if platform == "win32" {
@@ -59,7 +59,7 @@ func DownloadArtifacts(platform string, arch string, version string, path string
 		return false
 	}
 
-	natives, err := FetchAPI(platform, arch, version)
+	natives, err := FetchAPI(platform, arch, version, module)
 
 	if err != nil {
 		panic(err)

@@ -15,6 +15,7 @@
             "value": "(optonal) value as a string"
         }
     ],
+    "module": "optifine",
     "preJava": "(optional) /path/to/executable ex: mangohud",
     "downloadPath": "/path/to/download/artifacts",
     "assets": "(optional) /path/to/lunar/files",

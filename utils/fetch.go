@@ -21,7 +21,7 @@ Fetch the LunarClient launch API endpoint.
 
 @returns {error} err - Any errors that occured
 */
-func FetchAPI(platform string, arch string, version string) (response LaunchMeta, err error) {
+func FetchAPI(platform string, arch string, version string, module string) (response LaunchMeta, err error) {
 	url := "https://api.lunarclientprod.com/launcher/launch"
 
 	params := map[string]string{
@@ -31,7 +31,7 @@ func FetchAPI(platform string, arch string, version string) (response LaunchMeta
 		"version":     version,
 		"branch":      "master",
 		"launch_type": "OFFLINE",
-		"classifier":  "optifine",
+		"classifier":  module,
 	}
 
 	jsonVal, _ := json.Marshal(params)

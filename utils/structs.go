@@ -12,6 +12,7 @@ type LaunchArgs struct {
 		Name  string `json:"name"`
 		Value string `json:"value"`
 	} `json:"env"`
+	Module  string `json:"module"`
 	PreJava string `json:"preJava"`
 	Version string `json:"version"`
 	Width   int    `json:"width"`
@@ -36,7 +37,7 @@ type LaunchMeta struct {
 	Success        bool `json:"success"`
 	LaunchTypeData struct {
 		Artifacts []Artifacts `json:"artifacts"`
-		MainClass string `json:"mainClass"`
+		MainClass string      `json:"mainClass"`
 	} `json:"launchTypeData"`
 	Licenses []struct {
 		File string `json:"file"`

@@ -144,8 +144,8 @@ func Launch(config string, debug bool) {
 	launchArgs.Assets = fallbackPath(launchArgs.Assets) + launchArgs.Version + file
 	launchArgs.Textures = fmt.Sprintf("%s%stextures", fallbackPath(launchArgs.Textures), file)
 
-	artifacts := DownloadArtifacts(plat, arch, launchArgs.Version, launchArgs.Assets)
-	DownloadTextures(plat, arch, launchArgs.Version, launchArgs.Textures, debug)
+	artifacts := DownloadArtifacts(plat, arch, launchArgs.Version, launchArgs.Assets, launchArgs.Module)
+	DownloadTextures(plat, arch, launchArgs.Version, launchArgs.Textures, debug, launchArgs.Module)
 
 	for _, v := range artifacts {
 		if v.Type == "CLASS_PATH" {
