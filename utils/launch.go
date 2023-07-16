@@ -135,12 +135,12 @@ func Launch(config string, debug bool) {
 	} else {
 		assetIndex = launchArgs.Version
 	}
-	
+
 	if len(launchArgs.PreJava) > 0 {
 		launchArgs.JRE = fmt.Sprintf("%s %s", launchArgs.PreJava, launchArgs.JRE)
 	}
-	
-	launchArgs.Natives = fmt.Sprintf("\"%s%s%s%snatives\"", fallbackPath(launchArgs.Natives), file, launchArgs.Version, file)
+
+	launchArgs.Natives = fmt.Sprintf("\"%s%s%snatives\"", fallbackPath(launchArgs.Natives), launchArgs.Version, file)
 	launchArgs.Assets = fallbackPath(launchArgs.Assets) + launchArgs.Version + file
 	launchArgs.Textures = fmt.Sprintf("%s%stextures", fallbackPath(launchArgs.Textures), file)
 
@@ -150,15 +150,15 @@ func Launch(config string, debug bool) {
 
 	for _, v := range artifacts {
 		if v.Type == "CLASS_PATH" {
-			classPath = append(classPath, fmt.Sprintf("%s%s%s", launchArgs.Assets, file, v.Name))
+			classPath = append(classPath, fmt.Sprintf("%s%s", launchArgs.Assets, v.Name))
 		}
 
 		if v.Type == "EXTERNAL_FILE" {
-			externalFiles = append(externalFiles, fmt.Sprintf("%s%s%s", launchArgs.Assets, file, v.Name))
+			externalFiles = append(externalFiles, v.Name)
 		}
 	}
 
-	cmd := exec.Command(prog, e, fmt.Sprintf("%s%sbin%sjava --add-modules jdk.naming.dns --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming -Djna.boot.library.path=%s -Djava.library.path=%s -Dlog4j2.formatMsgNoLookups=true --add-opens java.base/java.io=ALL-UNNAMED -Xms%s -Xmx%s -Xss%s -Xmn%s %s -cp %s %s com.moonsworth.lunar.genesis.Genesis --version %s --accessToken 0 --assetIndex %s --userProperties {} --gameDir %s --texturesDir %s --launcherVersion 69420 --hwid 69420 --width %d --height %d --workingDirectory %s --classpathDir %s --ichorClassPath %s --ichorExternalFiles %s", launchArgs.JRE, file, file, launchArgs.Natives, launchArgs.Natives, launchArgs.Memory.Xms, launchArgs.Memory.Xmx, launchArgs.Memory.Xss, launchArgs.Memory.Xmn, strings.Join(launchArgs.JVMArgs, " "), strings.Join(classPath, sep), javaAgent(), launchArgs.Version, assetIndex, launchArgs.MCDir, launchArgs.Textures, launchArgs.Width, launchArgs.Height, launchArgs.Assets, launchArgs.Assets, strings.Join(classPath, ","), strings.Join(externalFiles, ",")))
+	cmd := exec.Command(prog, e, fmt.Sprintf("%s%sbin%sjava --add-modules jdk.naming.dns --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming -Djna.boot.library.path=%s -Djava.library.path=%s -Dlog4j2.formatMsgNoLookups=true --add-opens java.base/java.io=ALL-UNNAMED -Xms%s -Xmx%s -Xss%s -Xmn%s %s -cp %s %s com.moonsworth.lunar.genesis.Genesis --version %s --accessToken 0 --assetIndex %s --userProperties {} --gameDir %s --texturesDir %s --webosrDir %s --launcherVersion 69420 --hwid 69420 --width %d --height %d --workingDirectory %s --classpathDir %s --ichorClassPath %s --ichorExternalFiles %s", launchArgs.JRE, file, file, launchArgs.Natives, launchArgs.Natives, launchArgs.Memory.Xms, launchArgs.Memory.Xmx, launchArgs.Memory.Xss, launchArgs.Memory.Xmn, strings.Join(launchArgs.JVMArgs, " "), strings.Join(classPath, sep), javaAgent(), launchArgs.Version, assetIndex, launchArgs.MCDir, launchArgs.Textures, launchArgs.Natives, launchArgs.Width, launchArgs.Height, launchArgs.Assets, launchArgs.Assets, strings.Join(classPath, ","), strings.Join(externalFiles, ",")))
 
 	if debug {
 		fmt.Println()
@@ -168,6 +168,7 @@ func Launch(config string, debug bool) {
 		fmt.Printf("Using JRE: %s\n", launchArgs.JRE)
 		fmt.Printf("Natives: %s\n", launchArgs.Natives)
 		fmt.Printf("Assets: %s\n", launchArgs.Assets)
+		fmt.Printf("Class Path: %s\n", strings.Join(classPath, sep))
 		fmt.Printf("PreJava: %s\n", launchArgs.PreJava)
 		fmt.Printf("Env: %s\n", launchArgs.Env)
 
