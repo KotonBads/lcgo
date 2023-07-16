@@ -65,6 +65,10 @@ func DownloadArtifacts(platform string, arch string, version string, path string
 		panic(err)
 	}
 
+	if !natives.Success {
+		panic("API returned success: false")
+	}
+
 	for _, v := range natives.LaunchTypeData.Artifacts {
 		if !ifExists(fmt.Sprintf("%s%s%s", path, _file, v.Name)) || !checkHash(fmt.Sprintf("%s%s%s", path, _file, v.Name), v.Sha1) || filepath.Ext(fmt.Sprintf("%s%s%s", path, _file, v.Name)) == ".zip" {
 			file, err := grab.Get(fmt.Sprintf("%s%s%s", path, _file, v.Name), v.Url)
