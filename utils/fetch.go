@@ -31,7 +31,7 @@ func FetchAPI(platform string, arch string, version string, module string) (resp
 		"version":     version,
 		"branch":      "master",
 		"launch_type": "OFFLINE",
-		"classifier":  module,
+		"module":      module,
 	}
 
 	jsonVal, _ := json.Marshal(params)
