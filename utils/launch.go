@@ -135,16 +135,17 @@ func Launch(config string, debug bool) {
 	} else {
 		assetIndex = launchArgs.Version
 	}
-
+	
 	if len(launchArgs.PreJava) > 0 {
 		launchArgs.JRE = fmt.Sprintf("%s %s", launchArgs.PreJava, launchArgs.JRE)
 	}
-
+	
 	launchArgs.Natives = fmt.Sprintf("\"%s%s%s%snatives\"", fallbackPath(launchArgs.Natives), file, launchArgs.Version, file)
 	launchArgs.Assets = fallbackPath(launchArgs.Assets) + launchArgs.Version + file
 	launchArgs.Textures = fmt.Sprintf("%s%stextures", fallbackPath(launchArgs.Textures), file)
 
 	artifacts := DownloadArtifacts(plat, arch, launchArgs.Version, launchArgs.Assets, launchArgs.Module)
+
 	DownloadTextures(plat, arch, launchArgs.Version, launchArgs.Textures, debug, launchArgs.Module)
 
 	for _, v := range artifacts {
